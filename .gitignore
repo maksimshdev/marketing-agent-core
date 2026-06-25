@@ -1,0 +1,28 @@
+# OS
+.DS_Store
+
+# Claude Code harness
+.claude/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+
+# Virtualenv
+.venv/
+venv/
+env/
+
+# Tooling caches
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Generated demo artifacts (dashboard outputs)
+dashboard/*.png
+dashboard/*.csv
+dashboard/*.txt

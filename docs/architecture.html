@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Маркетинговый агент — архитектура ядра</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#181C22; --muted:#5C6573;
+    --paper:#EEF1F5; --surface:#FFFFFF; --line:#D8DDE5;
+    --teal:#0E7C7B; --teal-soft:#E1F0EF;
+    --amber:#B97614; --amber-ink:#92600F; --amber-soft:#FBEEDA;
+    --rose:#B0434E; --rose-soft:#F7E4E6;
+    --sans:'Inter',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+    --disp:'Space Grotesk',var(--sans);
+    --mono:'IBM Plex Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{
+    background:var(--paper); color:var(--ink); font-family:var(--sans);
+    line-height:1.45; padding:32px 20px 56px;
+    background-image:radial-gradient(circle at 1px 1px, #DEE3EB 1px, transparent 0);
+    background-size:26px 26px;
+  }
+  .wrap{max-width:1120px; margin:0 auto}
+
+  /* header */
+  header{margin-bottom:26px}
+  .eyebrow{font-family:var(--mono); font-size:12px; font-weight:600; letter-spacing:2.5px;
+    color:var(--teal); text-transform:uppercase; margin:0 0 8px}
+  h1{font-family:var(--disp); font-weight:700; font-size:clamp(28px,4.2vw,42px);
+    letter-spacing:-.02em; margin:0 0 10px}
+  .meta{font-family:var(--mono); font-size:13px; color:var(--muted); margin:0;
+    display:flex; flex-wrap:wrap; gap:6px 12px}
+  .meta b{color:var(--ink); font-weight:600}
+
+  /* card sections */
+  .card{background:var(--surface); border:1px solid var(--line); border-radius:18px;
+    padding:22px 22px 24px; margin-top:22px; box-shadow:0 1px 0 #fff inset, 0 6px 22px -16px rgba(24,28,34,.25)}
+  .card > h2{font-family:var(--disp); font-weight:600; font-size:15px; letter-spacing:.01em;
+    margin:0 0 16px; display:flex; align-items:center; gap:9px}
+  .card > h2 .tag{font-family:var(--mono); font-size:11px; font-weight:500; color:var(--muted);
+    border:1px solid var(--line); border-radius:6px; padding:2px 7px}
+
+  /* svg diagram */
+  .diagram svg{width:100%; height:auto; display:block}
+  .b-title{font-family:var(--disp); font-weight:600; font-size:13px; fill:var(--ink)}
+  .b-line{font-family:var(--sans); font-size:10.5px; fill:var(--ink)}
+  .b-mono{font-family:var(--mono); font-size:10px; font-weight:500; fill:var(--ink)}
+  .b-mut{font-family:var(--sans); font-size:10px; fill:var(--muted)}
+  .b-it{font-style:italic}
+  .sub{font-family:var(--sans); font-size:9.5px; font-weight:500; fill:var(--ink)}
+  .eb{font-family:var(--mono); font-size:11px; font-weight:600; letter-spacing:2px; fill:var(--muted)}
+  .looplbl{font-family:var(--mono); font-size:11px; font-weight:600; fill:var(--amber-ink)}
+  .box{fill:var(--surface); stroke:var(--line); stroke-width:1.4}
+  .box-sense{fill:#FBFDFD; stroke:#BFDCDB}
+  .box-core{fill:#FFFDF8; stroke:#E6CFA3}
+  .box-act{fill:#FFFDF8; stroke:#E6CFA3}
+  .subbox{fill:var(--paper); stroke:var(--line); stroke-width:1}
+  .conn{stroke:#9BA4B2; stroke-width:1.6; fill:none}
+  .loop{stroke:var(--amber); stroke-width:2.6; fill:none}
+  @media (prefers-reduced-motion: no-preference){
+    .loop-anim{stroke-dasharray:7 7; animation:flow 1.1s linear infinite}
+    @keyframes flow{to{stroke-dashoffset:-14}}
+  }
+  .looppill{fill:var(--amber-soft); stroke:#E6CFA3; stroke-width:1}
+
+  /* cross-cutting chips */
+  .lanes{display:grid; grid-template-columns:repeat(auto-fit,minmax(190px,1fr)); gap:12px}
+  .lane{border:1px solid var(--line); border-radius:12px; padding:13px 14px; background:var(--surface)}
+  .lane .nm{font-family:var(--disp); font-weight:600; font-size:13px; margin-bottom:4px;
+    display:flex; align-items:center; gap:7px}
+  .lane .ds{font-size:12px; color:var(--muted)}
+  .dot{width:8px; height:8px; border-radius:50%; flex:0 0 auto}
+  .d-teal{background:var(--teal)} .d-amber{background:var(--amber)}
+  .d-rose{background:var(--rose)} .d-ink{background:var(--muted)}
+  .lane.warn{border-color:#E6BFC3; background:linear-gradient(0deg,var(--rose-soft),#fff)}
+
+  /* tick cycle */
+  .ticks{display:flex; flex-wrap:wrap; align-items:stretch; gap:7px}
+  .tk{display:flex; align-items:center; gap:8px; border:1px solid var(--line);
+    border-radius:10px; padding:8px 11px 8px 9px; background:var(--surface); min-height:40px}
+  .tk .n{font-family:var(--mono); font-weight:600; font-size:11px; color:#fff;
+    width:19px; height:19px; border-radius:6px; display:grid; place-items:center; flex:0 0 auto}
+  .tk .t{font-family:var(--mono); font-size:11.5px; font-weight:500}
+  .tk.sense{border-color:#BFDCDB} .tk.sense .n{background:var(--teal)}
+  .tk.guard{border-color:#E6BFC3; background:var(--rose-soft)} .tk.guard .n{background:var(--rose)}
+  .tk.act{border-color:#E6CFA3; background:#FFFDF8} .tk.act .n{background:var(--amber)}
+  .tk.keep .n{background:var(--muted)}
+  .arr{display:grid; place-items:center; color:#9BA4B2; font-family:var(--mono); font-size:14px; font-weight:600}
+  .loopback{display:flex; align-items:center; gap:8px; border:1.6px dashed var(--amber);
+    border-radius:10px; padding:8px 12px; background:var(--amber-soft); color:var(--amber-ink);
+    font-family:var(--mono); font-size:11.5px; font-weight:600}
+
+  /* legend */
+  .legend{display:flex; flex-wrap:wrap; gap:8px 22px; align-items:center; margin-top:22px;
+    font-size:12px; color:var(--muted); font-family:var(--mono)}
+  .legend .it{display:flex; align-items:center; gap:7px}
+  .src{margin-left:auto; color:var(--muted)}
+  @media (max-width:560px){ .src{margin-left:0; width:100%} }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <p class="eyebrow">Тестовое · самооптимизирующийся агент</p>
+    <h1>Архитектура ядра</h1>
+    <p class="meta">
+      <span><b>Яндекс Директ</b> · поиск + РСЯ</span>
+      <span>ручные ставки</span>
+      <span>мок-симулятор</span>
+      <span>цель: <b>целевой CPA</b></span>
+    </p>
+  </header>
+
+  <!-- ============ DIAGRAM ============ -->
+  <section class="card diagram">
+    <h2>Блоки и замкнутый цикл <span class="tag">sense → think → act</span></h2>
+    <svg viewBox="0 0 1280 268" role="img" aria-label="Схема: инвентарь, адаптер, сбор и KPI, ядро оптимизации, исполнитель, и обратная связь">
+      <defs>
+        <marker id="ah" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto">
+          <path d="M1,1 L8,4.5 L1,8 Z" fill="#9BA4B2"/>
+        </marker>
+        <marker id="aha" markerWidth="11" markerHeight="11" refX="8" refY="5.5" orient="auto">
+          <path d="M1,1 L9,5.5 L1,10 Z" fill="#B97614"/>
+        </marker>
+      </defs>
+
+      <!-- eyebrows -->
+      <text class="eb" x="24"   y="18" fill="#0E7C7B">SENSE</text>
+      <text class="eb" x="786"  y="18" fill="#B97614">THINK</text>
+      <text class="eb" x="1122" y="18" fill="#B97614">ACT</text>
+
+      <!-- connectors -->
+      <line class="conn" x1="192" y1="104" x2="226" y2="104" marker-end="url(#ah)"/>
+      <line class="conn" x1="378" y1="104" x2="412" y2="104" marker-end="url(#ah)"/>
+      <line class="conn" x1="564" y1="104" x2="598" y2="104" marker-end="url(#ah)"/>
+      <line class="conn" x1="750" y1="104" x2="784" y2="104" marker-end="url(#ah)"/>
+      <line class="conn" x1="1086" y1="104" x2="1120" y2="104" marker-end="url(#ah)"/>
+
+      <!-- B1 inventory -->
+      <rect class="box box-sense" x="24" y="40" width="168" height="128" rx="13"/>
+      <text class="b-title" x="108" y="66" text-anchor="middle">Мок-инвентарь</text>
+      <text class="b-line"  x="108" y="90"  text-anchor="middle">Поиск — CPC · ключи</text>
+      <text class="b-line"  x="108" y="108" text-anchor="middle">РСЯ — CPM · аудитории</text>
+      <text class="b-mut b-it" x="108" y="132" text-anchor="middle">скрытая «правда»</text>
+
+      <!-- B2 adapter -->
+      <rect class="box" x="228" y="40" width="150" height="128" rx="13"/>
+      <text class="b-title" x="303" y="72" text-anchor="middle">Platform Adapter</text>
+      <text class="b-mono" x="303" y="98"  text-anchor="middle">get_metrics()</text>
+      <text class="b-mono" x="303" y="116" text-anchor="middle">set_bid/budget</text>
+
+      <!-- B3 ingest -->
+      <rect class="box" x="414" y="40" width="150" height="128" rx="13"/>
+      <text class="b-title" x="489" y="72" text-anchor="middle">Сбор → Canonical</text>
+      <text class="b-mono" x="489" y="98"  text-anchor="middle">MetricSnapshot</text>
+      <text class="b-mut"  x="489" y="116" text-anchor="middle">норм. сырья площадки</text>
+
+      <!-- B4 kpi -->
+      <rect class="box" x="600" y="40" width="150" height="128" rx="13"/>
+      <text class="b-title" x="675" y="72" text-anchor="middle">KPI-движок</text>
+      <text class="b-line" x="675" y="97"  text-anchor="middle">CR · CPC · CPM · CPA</text>
+      <text class="b-mut"  x="675" y="116" text-anchor="middle">Wilson CI · значимость</text>
+
+      <!-- B5 optimization core -->
+      <rect class="box box-core" x="786" y="40" width="300" height="128" rx="14"/>
+      <text class="b-title" x="936" y="60" text-anchor="middle">Optimization Core · «мозг»</text>
+      <rect class="subbox" x="798" y="72" width="132" height="40" rx="7"/>
+      <text class="sub" x="864" y="96" text-anchor="middle">Гейт значимости</text>
+      <rect class="subbox" x="942" y="72" width="132" height="40" rx="7"/>
+      <text class="sub" x="1008" y="90" text-anchor="middle">Контроллер ставок</text>
+      <text class="sub" x="1008" y="103" text-anchor="middle">→ целевой CPA</text>
+      <rect class="subbox" x="798" y="118" width="132" height="40" rx="7"/>
+      <text class="sub" x="864" y="142" text-anchor="middle">Bandit-бюджет (TS)</text>
+      <rect class="subbox" x="942" y="118" width="132" height="40" rx="7"/>
+      <text class="sub" x="1008" y="142" text-anchor="middle">Prune / Scale</text>
+
+      <!-- B6 executor -->
+      <rect class="box box-act" x="1122" y="40" width="134" height="128" rx="13"/>
+      <text class="b-title" x="1189" y="72" text-anchor="middle">Executor</text>
+      <text class="b-line" x="1189" y="97"  text-anchor="middle">под Guardrails</text>
+      <text class="b-mut"  x="1189" y="116" text-anchor="middle">лог + причина</text>
+
+      <!-- feedback loop (signature) -->
+      <path class="loop loop-anim" marker-end="url(#aha)"
+            d="M 1189,168 L 1189,222 Q 1189,236 1175,236 L 122,236 Q 108,236 108,222 L 108,172"/>
+      <rect class="looppill" x="430" y="224" width="436" height="24" rx="12"/>
+      <text class="looplbl" x="648" y="240" text-anchor="middle">set_bid · set_budget · set_status — обратная связь</text>
+    </svg>
+  </section>
+
+  <!-- ============ CROSS-CUTTING ============ -->
+  <section class="card">
+    <h2>Сквозные блоки <span class="tag">обрамляют цикл</span></h2>
+    <div class="lanes">
+      <div class="lane">
+        <div class="nm"><span class="dot d-amber"></span>Orchestrator</div>
+        <div class="ds">гоняет цикл; один tick = «день»</div>
+      </div>
+      <div class="lane">
+        <div class="nm"><span class="dot d-teal"></span>Memory / Learning</div>
+        <div class="ds">накопл. conv·clicks → апостериорные; лог решений</div>
+      </div>
+      <div class="lane warn">
+        <div class="nm"><span class="dot d-rose"></span>Guardrails</div>
+        <div class="ds">потолок B_MAX · kill-switch · шаг ставки ≤ 20%</div>
+      </div>
+      <div class="lane">
+        <div class="nm"><span class="dot d-ink"></span>Observability</div>
+        <div class="ds">объяснимость каждого решения + дашборд</div>
+      </div>
+      <div class="lane">
+        <div class="nm"><span class="dot d-ink"></span>Config</div>
+        <div class="ds">все параметры в одном месте</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ TICK CYCLE ============ -->
+  <section class="card">
+    <h2>Цикл tick <span class="tag">один проход оркестратора · §8</span></h2>
+    <div class="ticks">
+      <span class="tk sense"><span class="n">1</span><span class="t">get_metrics</span></span>
+      <span class="arr" aria-hidden="true">→</span>
+      <span class="tk sense"><span class="n">2</span><span class="t">пересчёт KPI</span></span>
+      <span class="arr" aria-hidden="true">→</span>
+      <span class="tk guard"><span class="n">3</span><span class="t">kill-switch</span></span>
+      <span class="arr" aria-hidden="true">→</span>
+      <span class="tk act"><span class="n">4</span><span class="t">PRUNE · пауза лузеров</span></span>
+      <span class="arr" aria-hidden="true">→</span>
+      <span class="tk act"><span class="n">5</span><span class="t">BID · ставки→CPA</span></span>
+      <span class="arr" aria-hidden="true">→</span>
+      <span class="tk act"><span class="n">6</span><span class="t">BUDGET · bandit</span></span>
+      <span class="arr" aria-hidden="true">→</span>
+      <span class="tk act"><span class="n">7</span><span class="t">SCALE · победители</span></span>
+      <span class="arr" aria-hidden="true">→</span>
+      <span class="tk act"><span class="n">8</span><span class="t">EXECUTOR · guardrails</span></span>
+      <span class="arr" aria-hidden="true">→</span>
+      <span class="tk keep"><span class="n">9</span><span class="t">запись в память</span></span>
+      <span class="arr" aria-hidden="true">→</span>
+      <span class="tk keep"><span class="n">10</span><span class="t">tick += 1</span></span>
+      <span class="arr" aria-hidden="true">↺</span>
+      <span class="loopback">повтор</span>
+    </div>
+  </section>
+
+  <div class="legend">
+    <span class="it"><span class="dot d-teal"></span>данные / восприятие</span>
+    <span class="it"><span class="dot d-amber"></span>решение / действие</span>
+    <span class="it"><span class="dot d-rose"></span>ограничители</span>
+    <span class="src">источник: spec_marketing_agent_core.md · §0–§13</span>
+  </div>
+
+</div>
+</body>
+</html>
