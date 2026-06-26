@@ -272,6 +272,9 @@ class MockYandexDirect(PlatformAdapter):
         out: list[MetricSnapshot] = []
         for ref in refs:
             state = self._require(ref)
+            if state.status == Status.PAUSED:  # paused-арм не показывается/не тратит
+                out.append(MetricSnapshot(ref=ref, tick=tick, window="tick"))
+                continue
             hp = self._hidden[ref]
             noise = float(rng.lognormal(mean=0.0, sigma=self.cfg.NOISE_SIGMA))
             if ref.inv_type == InvType.SEARCH:
@@ -318,6 +321,11 @@ class MockYandexDirect(PlatformAdapter):
     def refs(self) -> list[EntityRef]:
         """Все зарегистрированные refs (порядок: search, затем network)."""
         return list(self._states.keys())
+
+    def all_states(self) -> dict[EntityRef, ArmState]:
+        """Внутренний словарь видимых ArmState (те же объекты, что использует адаптер).
+        Memory разделяет эти объекты, чтобы ingest/update_state и set_* были консистентны."""
+        return self._states
 
     # --- внутреннее ---
 
