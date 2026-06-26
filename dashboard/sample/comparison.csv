@@ -1,0 +1,4 @@
+config,final_cpa_acct,total_conv,total_spend,romi
+agent,206.3,2002.0,408820.3,3.529
+baseline,215.5,2183.0,481084.7,3.476
+oracle,106.7,2611.2,278667.2,8.213

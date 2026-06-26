@@ -22,7 +22,8 @@ env/
 .mypy_cache/
 .ruff_cache/
 
-# Generated demo artifacts (dashboard outputs)
-dashboard/*.png
-dashboard/*.csv
-dashboard/*.txt
+# Generated demo artifacts: игнорируем «сырой» top-level вывод dashboard/,
+# но трекаем лёгкие сэмплы для ревьюера в dashboard/sample/ (см. run.py).
+/dashboard/*.png
+/dashboard/*.csv
+/dashboard/*.txt

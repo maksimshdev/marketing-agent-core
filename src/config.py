@@ -76,6 +76,9 @@ class Config:
     SEED: int = 42
     NOISE_SIGMA: float = 0.15
     UPLIFT_MAX: float = 0.5
+    # Параметры хуков мока (M2: вынесены из модульных констант mock_direct)
+    DRIFT_MAX_REL: float = 0.5          # дрейф true_cr к концу прогона: до (1-этого)
+    FREQ_SAT_HALF_IMP: float = 500000.0  # показов до падения охвата РСЯ вдвое
     seasonality: list[float] = field(
         default_factory=lambda: [1.0, 1.0, 1.0, 1.05, 1.15, 0.9, 0.8]
     )

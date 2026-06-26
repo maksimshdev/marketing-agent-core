@@ -34,13 +34,9 @@ from src.types import (
     bid_unit_for,
 )
 
-# --- Параметры хуков (off по умолчанию; документированные формы) ---
-# FREQ_SAT: насыщение частоты в РСЯ. freq_sat = 1/(1 + cum_imp/HALF) — при накоплении
-# HALF показов охват падает вдвое. Активен только при cfg.FREQ_SAT == True.
-_FREQ_SAT_HALF_IMP = 500_000.0
-# DRIFT: с середины прогона (tick >= M_TICKS/2) истинная конверсия линейно падает,
-# к концу прогона — до (1 - _DRIFT_MAX_REL) от исходной. Активен только при cfg.DRIFT.
-_DRIFT_MAX_REL = 0.5
+# Формы хуков (off по умолчанию):
+# FREQ_SAT: freq_sat = 1/(1 + cum_imp/FREQ_SAT_HALF_IMP) — охват РСЯ падает вдвое за HALF.
+# DRIFT: с середины прогона true_cr линейно падает к (1 - DRIFT_MAX_REL). Числа — в Config (M2).
 
 
 # ---------------------------------------------------------------------------
@@ -68,7 +64,7 @@ def _freq_sat(cum_imp: int, cfg: Config) -> float:
     """Насыщение частоты (РСЯ). off → 1.0; on → 1/(1 + cum_imp/HALF)."""
     if not cfg.FREQ_SAT:
         return 1.0
-    return 1.0 / (1.0 + cum_imp / _FREQ_SAT_HALF_IMP)
+    return 1.0 / (1.0 + cum_imp / cfg.FREQ_SAT_HALF_IMP)
 
 
 def _drift_factor(tick: int, cfg: Config) -> float:
@@ -80,7 +76,7 @@ def _drift_factor(tick: int, cfg: Config) -> float:
     if tick < half:
         return 1.0
     progress = min(1.0, (tick - half) / half)  # 0..1 во второй половине
-    return 1.0 - _DRIFT_MAX_REL * progress
+    return 1.0 - cfg.DRIFT_MAX_REL * progress
 
 
 # ---------------------------------------------------------------------------
