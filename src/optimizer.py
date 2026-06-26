@@ -115,25 +115,33 @@ def _waterfill(
 ) -> dict:
     """Распределить pool пропорц. weights с клампом по arm_budget_cap (C3).
     Излишек упёршихся переливается среди неупёршихся (итеративно). Если все упёрлись —
-    остаток не форсим (недорасход допустим)."""
+    остаток не форсим (недорасход допустим).
+
+    Обход — в каноническом порядке по ref.id (не по set): суммирование float идёт в
+    фиксированном порядке независимо от порядка входа и от per-process hash-рандомизации,
+    что даёт побитовый детерминизм между процессами. Логика аллокации при этом неизменна.
+    """
     budgets: dict = {}
-    uncapped = {a.ref for a in arms}
     cap = {a.ref: _cap_of(a, cfg) for a in arms}
+    uncapped = sorted((a.ref for a in arms), key=lambda r: r.id)
     remaining = pool
     for _ in range(5):
+        if not uncapped:
+            break
         total_w = sum(weights[r] for r in uncapped)
-        if not uncapped or total_w <= 0:
+        if total_w <= 0:
             break
         newly = [r for r in uncapped if remaining * weights[r] / total_w > cap[r]]
         if not newly:
             for r in uncapped:
                 budgets[r] = remaining * weights[r] / total_w
-            uncapped = set()
+            uncapped = []
             break
         for r in newly:
             budgets[r] = cap[r]
             remaining -= cap[r]
-            uncapped.discard(r)
+        newly_set = set(newly)
+        uncapped = [r for r in uncapped if r not in newly_set]
     # не сошлось за 5 итераций → раздать остаток по весам среди неупёршихся
     if uncapped:
         total_w = sum(weights[r] for r in uncapped)
