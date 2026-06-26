@@ -27,3 +27,6 @@ env/
 /dashboard/*.png
 /dashboard/*.csv
 /dashboard/*.txt
+
+# Внутренние BA/PM-хэндоффы — не идут в публичный репо.
+docs/handoff_*.md

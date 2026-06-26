@@ -1,0 +1,101 @@
+<svg viewBox="0 0 1240 360" xmlns="http://www.w3.org/2000/svg" role="img"
+     aria-label="Архитектура ядра: инвентарь, адаптер, сбор и KPI, ядро оптимизации, исполнитель и обратная связь">
+  <style>
+    .bg     { fill: #FFFFFF; }
+    .box    { fill: #FFFFFF; stroke: #D8DDE5; stroke-width: 1.4; }
+    .sense  { fill: #FBFDFD; stroke: #BFDCDB; }
+    .core   { fill: #FFFDF8; stroke: #E6CFA3; }
+    .act    { fill: #FFFDF8; stroke: #E6CFA3; }
+    .sub    { fill: #EEF1F5; stroke: #D8DDE5; stroke-width: 1; }
+    .title  { font: 600 13px -apple-system, "Segoe UI", Roboto, sans-serif; fill: #181C22; }
+    .line   { font: 400 11px -apple-system, "Segoe UI", Roboto, sans-serif; fill: #181C22; }
+    .mono   { font: 500 10.5px ui-monospace, Menlo, Consolas, monospace; fill: #181C22; }
+    .mut    { font: 400 10px -apple-system, "Segoe UI", Roboto, sans-serif; fill: #5C6573; }
+    .it     { font-style: italic; }
+    .subt   { font: 500 10px -apple-system, "Segoe UI", Roboto, sans-serif; fill: #181C22; }
+    .eb     { font: 600 11px ui-monospace, Menlo, monospace; letter-spacing: 2px; }
+    .loop   { stroke: #B97614; stroke-width: 2.4; fill: none; }
+    .conn   { stroke: #9BA4B2; stroke-width: 1.6; fill: none; }
+    .pill   { fill: #FBEEDA; stroke: #E6CFA3; stroke-width: 1; }
+    .plbl   { font: 600 11px ui-monospace, Menlo, monospace; fill: #92600F; }
+    .cap    { font: 400 10.5px -apple-system, "Segoe UI", Roboto, sans-serif; fill: #5C6573; }
+  </style>
+
+  <defs>
+    <marker id="ah" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto">
+      <path d="M1,1 L8,4.5 L1,8 Z" fill="#9BA4B2"/>
+    </marker>
+    <marker id="aha" markerWidth="11" markerHeight="11" refX="8" refY="5.5" orient="auto">
+      <path d="M1,1 L9,5.5 L1,10 Z" fill="#B97614"/>
+    </marker>
+  </defs>
+
+  <rect class="bg" x="0" y="0" width="1240" height="360"/>
+
+  <!-- eyebrows -->
+  <text class="eb" x="24"   y="44" fill="#0E7C7B">SENSE</text>
+  <text class="eb" x="720"  y="44" fill="#B97614">THINK</text>
+  <text class="eb" x="1034" y="44" fill="#B97614">ACT</text>
+
+  <!-- connectors -->
+  <line class="conn" x1="174"  y1="116" x2="196"  y2="116" marker-end="url(#ah)"/>
+  <line class="conn" x1="348"  y1="116" x2="370"  y2="116" marker-end="url(#ah)"/>
+  <line class="conn" x1="522"  y1="116" x2="544"  y2="116" marker-end="url(#ah)"/>
+  <line class="conn" x1="696"  y1="116" x2="718"  y2="116" marker-end="url(#ah)"/>
+  <line class="conn" x1="1010" y1="116" x2="1032" y2="116" marker-end="url(#ah)"/>
+
+  <!-- inventory -->
+  <rect class="box sense" x="24" y="56" width="150" height="120" rx="13"/>
+  <text class="title" x="99" y="86"  text-anchor="middle">Мок-инвентарь</text>
+  <text class="line"  x="99" y="110" text-anchor="middle">Поиск · CPC · ключи</text>
+  <text class="line"  x="99" y="128" text-anchor="middle">РСЯ · CPM · аудитории</text>
+  <text class="mut it" x="99" y="152" text-anchor="middle">скрытая «правда»</text>
+
+  <!-- adapter -->
+  <rect class="box" x="198" y="56" width="150" height="120" rx="13"/>
+  <text class="title" x="273" y="86"  text-anchor="middle">Platform Adapter</text>
+  <text class="mono"  x="273" y="112" text-anchor="middle">get_metrics()</text>
+  <text class="mono"  x="273" y="130" text-anchor="middle">set_bid / budget</text>
+  <text class="mut"   x="273" y="152" text-anchor="middle">контракт §4</text>
+
+  <!-- ingest -->
+  <rect class="box" x="372" y="56" width="150" height="120" rx="13"/>
+  <text class="title" x="447" y="86"  text-anchor="middle">Сбор → Canonical</text>
+  <text class="mono"  x="447" y="112" text-anchor="middle">MetricSnapshot</text>
+  <text class="mut"   x="447" y="132" text-anchor="middle">норм. сырья площадки</text>
+
+  <!-- kpi -->
+  <rect class="box" x="546" y="56" width="150" height="120" rx="13"/>
+  <text class="title" x="621" y="86"  text-anchor="middle">KPI-движок</text>
+  <text class="line"  x="621" y="110" text-anchor="middle">CR · CPC · CPM · CPA</text>
+  <text class="mut"   x="621" y="132" text-anchor="middle">Wilson CI · значимость</text>
+
+  <!-- optimization core -->
+  <rect class="box core" x="720" y="56" width="290" height="120" rx="14"/>
+  <text class="title" x="865" y="76" text-anchor="middle">Optimization Core · «мозг»</text>
+  <rect class="sub" x="732" y="86"  width="128" height="36" rx="7"/>
+  <text class="subt" x="796" y="108" text-anchor="middle">Гейт значимости</text>
+  <rect class="sub" x="866" y="86"  width="132" height="36" rx="7"/>
+  <text class="subt" x="932" y="101" text-anchor="middle">Контроллер ставок</text>
+  <text class="subt" x="932" y="115" text-anchor="middle">→ целевой CPA</text>
+  <rect class="sub" x="732" y="128" width="128" height="36" rx="7"/>
+  <text class="subt" x="796" y="150" text-anchor="middle">Bandit-бюджет (TS)</text>
+  <rect class="sub" x="866" y="128" width="132" height="36" rx="7"/>
+  <text class="subt" x="932" y="150" text-anchor="middle">Prune / Scale</text>
+
+  <!-- executor -->
+  <rect class="box act" x="1034" y="56" width="150" height="120" rx="13"/>
+  <text class="title" x="1109" y="86"  text-anchor="middle">Executor</text>
+  <text class="line"  x="1109" y="110" text-anchor="middle">под Guardrails</text>
+  <text class="mut"   x="1109" y="132" text-anchor="middle">лог + причина</text>
+
+  <!-- feedback loop -->
+  <path class="loop" marker-end="url(#aha)"
+        d="M 1109,176 L 1109,250 Q 1109,266 1093,266 L 115,266 Q 99,266 99,250 L 99,180"/>
+  <rect class="pill" x="402" y="254" width="436" height="24" rx="12"/>
+  <text class="plbl" x="620" y="270" text-anchor="middle">set_bid · set_budget · set_status — обратная связь</text>
+
+  <!-- cross-cutting caption -->
+  <text class="cap" x="24" y="318">Сквозь цикл:  Orchestrator — гоняет tick (= «день»)   ·   Memory — накопление статистики → обучение   ·   Guardrails — B_MAX, шаг ставки ≤ 20%, kill-switch, лимит изменений</text>
+  <text class="cap" x="24" y="338" fill="#94A0AE">Один проход = sense → think → act.  Ядро не знает про площадку — работает только через контракт адаптера (сегодня мок, завтра боевой Директ / другая площадка).</text>
+</svg>
